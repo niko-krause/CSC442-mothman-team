@@ -1,19 +1,17 @@
+// Chandler Dees
+// CSC 4423
+// 9 - 17 - 25
 
-// Chandler Dees 
-// CSC 4423 
-// 9 - 17 - 25 
-
-package main 
+package main
 
 import (
-	"fmt" 
+	"fmt"
+	"strconv"
 	//"encoding/binary"
-
 )
 
-
-
 func main(){
+	// have to make user input string because int thats too large causes issues
 	var input string // declaring user input 
 	fmt.Print("Enter a binary string: ") 
 	fmt.Scan(&input) // taking user input 
@@ -39,18 +37,21 @@ func main(){
 	// grouping the total input into the grouping size  
 	for i := 0; i < len(input); i += grouping {
 		inputGroup := input[i : i + grouping]
+		
+		// converting input into integer then that is feed into ascii to become a character 
+
+		val, err := strconv.ParseInt(inputGroup, 2, 64) // interpreting user input as binary then translating its value to dec
+		// if the input cannot be interpreted then throw an error 
+		if err != nil{
+			fmt.Println("Error: ", err) 
+			return 
+		}
+
+		// concatenating those characters to form a final output string 
+		// printing the groups by formatting as chars and not printing a newline
+		fmt.Printf("%c", val)
+
 	}
-
-
-	// converting input into integer then that is feed into ascii to become a character 
-
-
-	// concatenating those characters to form a final output string 
-
-	/*
-	breaking the input into groups of 8 then turn them into bytes and feed those bytes into ascii for translation 
-	*/
-
-	
+	fmt.Println()
 }
 
