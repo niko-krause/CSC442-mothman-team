@@ -16,17 +16,29 @@ func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 	k := 0
 
 	for i:=0;i<len(message);i++{
+
+		caps := false
+		
 		if (!strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i])) {
 
 			if k >= len(key){ //brings key back to first letter
 				k = 0
+			}
+
+			if  unicode.IsUpper(splitMsg[i]) { //checks to see if the rune is uppercase. If so, stores that for later and makes it lowercase
+				caps = true
+				splitMsg[i] = unicode.ToLower(splitMsg[i])
 			}
 			
 			P := alpha[splitMsg[i]] // P_i from The Formula
 	
 			K := alpha[splitKey[k]] // K_i from The Formula
 	
-			cipherTxt += string(alphabet[(P+K)%26])
+			if caps { //resolves stored capitalization
+				cipherTxt += string(unicode.ToUpper(alphabet[(P+K)%26]))
+			} else {
+				cipherTxt += string(alphabet[(P+K)%26])
+			}
 			
 			k += 1
 		} else {
@@ -44,17 +56,29 @@ func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 	k := 0
 
 	for i:=0;i<len(message);i++{
+
+		caps := false
+		
 		if (!strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i])) {
 
 			if k >= len(key){ //brings key back to first letter
 				k = 0
+			}
+
+			if  unicode.IsUpper(splitMsg[i]) { //checks to see if the rune is uppercase. If so, stores that for later and makes it lowercase
+				caps = true
+				splitMsg[i] = unicode.ToLower(splitMsg[i])
 			}
 			
 			C := alpha[splitMsg[i]] // C_i from The Formula
 	
 			K := alpha[splitKey[k]] // K_i from The Formula
 	
-			plainTxt += string(alphabet[(26+C-K)%26])
+			if caps { //resolves stored capitalization
+				plainTxt += string(unicode.ToUpper(alphabet[(26+C-K)%26]))
+			} else {
+				plainTxt += string(alphabet[(26+C-K)%26])
+			}
 			
 			k += 1
 		} else {
@@ -91,6 +115,7 @@ func main() {
 	flag.Parse() //sorts flags from user input
 
 	key := strings.TrimSpace(flag.Arg(0)) //gets first argument after the flags
+	key = strings.ToLower(key) //forces the key to be lowercase (for ease of processing)
 	
 	for *dCheck || *eCheck { //while either flag is true
 		
