@@ -19,10 +19,16 @@ func main(){
 	fmt.Printf("Your input was: %s", input) // printing user input back at them
 	fmt.Println() 
 
-	// check if user input is a multiple of 8 and if not then pad as needed
-	// if user input is a multiple of 8 proceed as normal
-	if !(len(input) % 8 == 0 || len(input) % 7 == 0) {
-		padAmount := len(input) % 8
+	// establishing default group size 
+	grouping := 8 
+	if len(input) % 7 == 0 {
+		grouping = 7 // changing grouping to 7 if dealing with 7 bit ascii
+	}
+
+	// check if user input is a multiple of 8 or 7 and if not then pad as needed
+	// if user input is a multiple of 8 or 7 proceed as normal
+	if len(input) % grouping != 0 {
+		padAmount := grouping - (len(input) %  grouping) // padding by the differnece between group amount and the input length
 		for i := 0; i < padAmount; i++{
 			// pad by adding zeros at the end 
 			input = input + "0"
@@ -31,11 +37,7 @@ func main(){
 
 	// split user input into groups of 8 or 7 and then feed those in as bytes? to be interpreted into ASCII
 
-	// establishing default group size 
-	grouping := 8 
-	if len(input) % 7 == 0 {
-		grouping = 7 // changing grouping to 7 if dealing with 7 bit ascii
-	}
+	
 	
 	// grouping the total input into the grouping size  
 	for i := 0; i < len(input); i += grouping {
