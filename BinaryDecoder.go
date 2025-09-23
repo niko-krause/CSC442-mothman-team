@@ -22,8 +22,11 @@ func main(){
 	// check if user input is a multiple of 8 and if not then pad as needed
 	// if user input is a multiple of 8 proceed as normal
 	if !(len(input) % 8 == 0 || len(input) % 7 == 0) {
-		print("Input length invalid, cannot decode to ASCII")
-		return // exit
+		padAmount := len(input) % 8
+		for i := 0; i < padAmount; i++{
+			// pad by adding zeros at the end 
+			input = input + "0"
+		}
 	}
 
 	// split user input into groups of 8 or 7 and then feed those in as bytes? to be interpreted into ASCII
