@@ -5,6 +5,7 @@ import (
 	"strings"
 	"bufio"
 	"flag"
+	"unicode"
 )
 
 func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
