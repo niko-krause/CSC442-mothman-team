@@ -16,7 +16,7 @@ func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 	k := 0
 
 	for i:=0;i<len(message);i++{
-		if (string(splitMsg[i]) != " ") {
+		if (!strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i])) {
 
 			if k >= len(key){ //brings key back to first letter
 				k = 0
@@ -30,7 +30,7 @@ func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 			
 			k += 1
 		} else {
-			cipherTxt += " "
+			cipherTxt += string(splitMsg[i])
 		}
 	}
 	fmt.Println(cipherTxt)
@@ -44,7 +44,7 @@ func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 	k := 0
 
 	for i:=0;i<len(message);i++{
-		if (string(splitMsg[i]) != " ") {
+		if (!strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i])) {
 
 			if k >= len(key){ //brings key back to first letter
 				k = 0
@@ -58,7 +58,7 @@ func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 			
 			k += 1
 		} else {
-			plainTxt += " "
+			plainTxt += string(splitMsg[i])
 		}
 	}
 	fmt.Println(plainTxt)
