@@ -12,12 +12,12 @@ import (
 )
 
 
-fun inputKey(key string) []int{ //input key checks for the input key from A-Z
-	num_shift := make([]int, 0, len(s))
-	for _, r :=range s {
+func inputKey(key string) []int{ //input key checks for the input key from A-Z
+	num_shift := make([]int, 0, len(key)) 
+	for _, r := range key {
 		ru := unicode.ToUpper(r)
-		if ru >= 'A' && ru <='Z'{
-			num_shift = append(num_shift,int(ru-'A'))
+		if ru >= 'A' && ru <= 'Z' {
+			num_shift = append(num_shift, int(ru-'A'))
 		}
 	}
 	if len(num_shift) == 0 {
