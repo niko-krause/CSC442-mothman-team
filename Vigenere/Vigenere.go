@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 	"unicode"
-	"log"
 )
 
 func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) string {
@@ -141,10 +140,7 @@ func main() {
 
 		//receives message to encode
 		input := bufio.NewReader(os.Stdin) //reads secondary user input
-		msg, err := input.ReadString('\n')
-		if err != nil{ 
-			log.Fatal("Problem reading user input")
-		}
+		msg, _ := input.ReadString('\n')
 		msg = strings.TrimSpace(msg)
 		
 		if len(msg) > 0 {
