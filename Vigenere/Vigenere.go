@@ -8,27 +8,9 @@ import (
 	"strings"
 	"unicode"
 	"log"
-
 )
 
-
-func inputKey(key string) []int{ //input key checks for the input key from A-Z
-	num_shift := make([]int, 0, len(key)) 
-	for _, r := range key {
-		ru := unicode.ToUpper(r)
-		if ru >= 'A' && ru <= 'Z' {
-			num_shift = append(num_shift, int(ru-'A'))
-		}
-	}
-	if len(num_shift) == 0 {
-		log.Fatalf("Key must contains at least one letter from A-Z")
-
-	}
-	return num_shift
-
-}
-
-func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
+func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) string {
 
 	cipherTxt := ""
 	splitMsg := []rune(message) //split to iterate through individual letters
@@ -40,10 +22,16 @@ func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 
 		caps := false
 
-		if !strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i]) {
+		if unicode.IsLetter(splitMsg[i]) {//if the rune is a letter
 
 			if k >= len(key) { //brings key back to first letter
 				k = 0
+			}
+
+			if string(splitKey[k]) == " " {
+				for string(splitKey[k]) == " "{
+					k += 1
+				}
 			}
 
 			if unicode.IsUpper(splitMsg[i]) { //checks to see if the rune is uppercase. If so, stores that for later and makes it lowercase
@@ -66,10 +54,10 @@ func encrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 			cipherTxt += string(splitMsg[i])
 		}
 	}
-	fmt.Println(cipherTxt)
+	return cipherTxt
 }
 
-func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
+func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) string {
 	plainTxt := ""
 	splitMsg := []rune(message) //split to iterate through individual letters
 	splitKey := []rune(key)     //see above
@@ -80,10 +68,16 @@ func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 
 		caps := false
 
-		if !strings.ContainsRune(" .-;:'+=*~`!@#$%^&*(){}?><,/|\\\"_", splitMsg[i]) {
+		if unicode.IsLetter(splitMsg[i]) { //if the rune is a letter
 
 			if k >= len(key) { //brings key back to first letter
 				k = 0
+			}
+
+			if string(splitKey[k]) == " " {
+				for string(splitKey[k]) == " "{
+					k += 1
+				}
 			}
 
 			if unicode.IsUpper(splitMsg[i]) { //checks to see if the rune is uppercase. If so, stores that for later and makes it lowercase
@@ -106,11 +100,12 @@ func decrypt(key string, message string, alphabet []rune, alpha map[rune]int) {
 			plainTxt += string(splitMsg[i])
 		}
 	}
-	fmt.Println(plainTxt)
+	return plainTxt
 }
 
-func vigenere(e bool, key string, message string) {
-	//fmt.Println(d, e, key, message)
+func vigenere(e bool, key string, message string) string {
+	//fmt.Println(e, key, message)
+	var output string
 
 	alphabet := []rune("abcdefghijklmnopqrstuvwxyz") //rune array of letters to jump to index of a given letter
 	alpha := make(map[rune]int)                      // map of the alphabet to get the index of a letter without searching the array
@@ -121,10 +116,11 @@ func vigenere(e bool, key string, message string) {
 	}
 
 	if e {
-		encrypt(key, message, alphabet, alpha)
+		output = encrypt(key, message, alphabet, alpha)
 	} else {
-		decrypt(key, message, alphabet, alpha)
+		output = decrypt(key, message, alphabet, alpha)
 	}
+	return output
 }
 
 func main() {
@@ -137,15 +133,24 @@ func main() {
 
 	key := strings.TrimSpace(flag.Arg(0)) //gets first argument after the flags
 	key = strings.ToLower(key)            //forces the key to be lowercase (for ease of processing)
-
+	if len(key) == 0 { //processes empty key like the letter a, leaving the messgae unencrypted
+		key = "a"
+	}
+	
 	for *dCheck || *eCheck { //while either flag is true
 
 		//receives message to encode
 		input := bufio.NewReader(os.Stdin) //reads secondary user input
-		msg, _ := input.ReadString('\n')
+		msg, err := input.ReadString('\n')
+		if err != nil{ 
+			log.Fatal("Problem reading user input")
+		}
 		msg = strings.TrimSpace(msg)
-
-		vigenere(*eCheck, key, msg)
+		
+		if len(msg) > 0 {
+			newMsg := vigenere(*eCheck, key, msg)
+			fmt.Println(newMsg)
+		}
 
 		//frees up input for another message
 		input.Reset(os.Stdin)
