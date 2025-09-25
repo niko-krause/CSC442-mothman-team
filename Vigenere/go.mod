@@ -1,3 +1,3 @@
-module Vigenere/VinProgram
+module vigenere.mod
 
 go 1.25.1
