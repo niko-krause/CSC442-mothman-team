@@ -24,7 +24,7 @@ const (
 	path = "/" // find by pwd
 		   // where are the files you are interested in
 	// variable to change the amount of bits that we are reading (7 or 10)
-	METHOD = 10
+	METHOD = 7
 )
 
 func main() {
@@ -77,8 +77,8 @@ func main() {
 		}
 	}
 	// temp debug print 
-	fmt.Print(binarystring)
-	fmt.Println()
+	//fmt.Print(binarystring)
+	//fmt.Println()
 
 	// disconnecting from FTP server 
 	client.Close()
