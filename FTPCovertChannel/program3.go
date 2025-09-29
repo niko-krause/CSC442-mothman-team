@@ -16,7 +16,7 @@ import(
 )
 
 const (
-	address = "192.168.1.243" // since we are logging in on where its hosted
+	address = "138.47.144.148" // since we are logging in on where its hosted
 	// otherwise we would put the IP address of where we are logging in
 	port = "21" // port number
 	username = "anonymous"
