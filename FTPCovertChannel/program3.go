@@ -1,140 +1,123 @@
-
 /*
- author: Chandler
- date: 24th Sept, 2025
- description: go code to log into an ftp server, and get the file listings
+Authors: Chandler Dees
+Date: 9/25/25
 */
-
 package main
 
-import(
+import (
 	"fmt"
 	"log"
-	"github.com/secsy/goftp"
+	"os"
+
 	//"program3.go/BinaryDecoder"
-	"strconv" 
+	"strconv"
+
+	"github.com/secsy/goftp"
 )
 
 const (
-	address = "138.47.144.148" // since we are logging in on where its hosted
+	address = "138.47.99.229" // since we are logging in on where its hosted
 	// otherwise we would put the IP address of where we are logging in
-	port = "21" // port number
-	username = "anonymous"
-	password = ""
-	path = "/" // find by pwd
-		   // where are the files you are interested in
-	// variable to change the amount of bits that we are reading (7 or 10)
-	METHOD = 7
+	port     = "21" // port number
+	username = "percypatterson"
+	password = "himalayas"
+	path     = "/files/10" // find by pwd
+	// where are the files you are interested in
 )
 
-func main() {
-	// update the config struct that is part of the goftp library
-	config := goftp.Config{
-		User: username,
-		Password: password,
-		//ActiveTransfers: true,
+// METHOD = false for 7-bit mode
+// METHOD = true for 10-bit mode
+var METHOD = true
+
+// BinaryPerms converts file permissions into a binary string.
+// If METHOD=false, only last 7 bits are kept, skipping entries where the first 3 bits are set.
+// If METHOD=true, all 10 bits are included.
+func BinaryPerms(entries []os.FileInfo) string {
+	output := ""
+
+	for _, entry := range entries {
+		modeString := entry.Mode().String() // e.g. "-rw-r--r--"
+		binary := ""
+
+		// permission string to binary
+		for _, bit := range modeString {
+			if bit == '-' {
+				binary += "0"
+			} else {
+				binary += "1"
+			}
+		}
+
+		if METHOD {
+			// use all 10 bits
+			output += binary
+		} else {
+			// slippa
+			if binary[0] == '1' || binary[1] == '1' || binary[2] == '1' {
+				continue
+			}
+			// use only the last 7 bits
+			last7 := binary[len(binary)-7:]
+			output += last7
+		}
 	}
 
-	// login to the ftp server
-	client, err := goftp.DialConfig(config, address + ":" + port)
+	return output
+}
 
-	if err != nil {// nil is the go version of null or none
+// convert input into 7 bit ascii
+func Decode(inputString string) string {
+	const grouping = 7
+	decodedString := ""
+
+	// pad to a multiple of 7
+	if len(inputString)%grouping != 0 {
+		padAmount := grouping - (len(inputString) % grouping)
+		for i := 0; i < padAmount; i++ {
+			inputString += "0"
+		}
+	}
+
+	// break into groups of 7
+	for i := 0; i < len(inputString); i += grouping {
+		inputGroup := inputString[i : i+grouping]
+
+		val, err := strconv.ParseInt(inputGroup, 2, 64)
+		if err != nil {
+			log.Println("Error decoding group:", inputGroup, err)
+			continue
+		}
+		decodedString += fmt.Sprintf("%c", val)
+	}
+
+	return decodedString
+}
+
+func main() {
+	// FTP client config
+	config := goftp.Config{
+		User:     username,
+		Password: password,
+	}
+
+	client, err := goftp.DialConfig(config, address+":"+port)
+	if err != nil {
 		log.Fatal(err)
 	}
-	//defer client.Close() // defer means this part executes last
-	// so it executes at the end of main(). Its evaluated where it
-	// is but executed at the end
+	defer client.Close()
 
-	// read the listing of the files in the ftp server
+	// get dir listing
 	entries, err := client.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// print out the file listing
-	var binarystring string
+	// convery permissions to binary
+	binver := BinaryPerms(entries)
 
-	for _, entry := range entries {
-		//fmt.Printf("%s\t%s\n", entry.Mode().String(), entry.Name())
-		// take the result from entry.Mode() turn into string 
-		//stringRep := entry.Mode()
-		
-		// turn that string into binary
-		//binaryPerms := strconv.FormatUint(stringRep, 2)
-		//fmt.Println( entry.Mode())
-		bitstring:= fmt.Sprintf("%010b", entry.Mode().Perm()) // used throw away var here
+	// decode binary into ASCII
+	result := Decode(binver)
 
-		// if the bit amount is 7 need to account for noise and skip it if it shows up
-		if METHOD == 7 {
-			if bitstring[0] == '1' || bitstring[1] == '1' || bitstring[2] == '1' {
-				continue // skippa 
-			}
-
-			// add only the last 7 bits into the string 
-			binarystring += bitstring[3:]
-		}else if METHOD == 10 {
-			binarystring += bitstring 
-		}
-	}
-	// temp debug print 
-	//fmt.Print(binarystring)
-	//fmt.Println()
-
-	// disconnecting from FTP server 
-	client.Close()
-
-	// now that the FTP server has been disconnected from, we isolate and decode the file permissions
-	result := Decode(binarystring)
-	fmt.Print(result)
-
-
+	// final result
+	fmt.Println(result)
 }
-
-// stole my own code from the program1
-func Decode(inputString string) string{ // needs to now return a string 
-	// taking the input string as parameter, decode, return decodedString as result
-	errorString := "Input cannot be interpreted"
-	var decodedString string  
-	//fmt.Print("Enter a binary string: ") 
-	//fmt.Scan(&input) // taking user input 
-
-	//fmt.Printf("Your input was: %s", input) // printing user input back at them
-	//fmt.Println() 
-
-	// establishing default group size (here its always 7 bit ASCII)
-	grouping := 7
-	
-	// check if user input is a multiple of 7 and if not then pad as needed
-	// if user input is a multiple of 7 proceed as normal
-	if len(inputString) % grouping != 0 {
-		padAmount := grouping - (len(inputString) %  grouping) // padding by the differnece between group amount and the input length
-		for i := 0; i < padAmount; i++{
-			// pad by adding zeros at the end 
-			inputString = inputString + "0"
-		}
-	}
-
-	// split user input into groups of 7 and then feed those in to be interpreted into ASCII
-
-	// grouping the total input into the grouping size  
-	for i := 0; i < len(inputString); i += grouping {
-		inputGroup := inputString[i : i + grouping]
-		
-		// converting input into integer then that is feed into ascii to become a character 
-
-		val, err := strconv.ParseInt(inputGroup, 2, 64) // interpreting user input as binary then translating its value to dec
-		// if the input cannot be interpreted then throw an error 
-		if err != nil{
-			fmt.Println("Error: ", err) 
-			return errorString
-		}
-
-		// concatenating those characters to form a final output string 
-		// printing the groups by formatting as chars and not printing a newline
-		//fmt.Printf("%c", val)
-		decodedString += fmt.Sprintf("%c", val)
-
-	}
-	return decodedString
-}
-
