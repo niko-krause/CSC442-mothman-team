@@ -15,6 +15,11 @@ import (
 	"io"
 	"time"
 	"strings"
+	"strconv"
+)
+
+const (
+	cutoff = 60 //miliseconds 
 )
 
 func main(){
@@ -39,11 +44,14 @@ func main(){
 	//read from stdin and send to server 
 	reader := bufio.NewReader(conn)
 
-	//create a slice of time.Duration objects so that the times can be grouped
+	//keeps track of the duration times 
 	var times []time.Duration
 
 	//variable to hold the overt message 
-	var overt strings.Builder
+	var overtMessage strings.Builder
+
+	//keeps track of the delay 
+	var prevTime time.Time 
 
 	for {
 		//getting the message
@@ -58,26 +66,33 @@ func main(){
 			fmt.Println("\nError reading from server:", err)
 			break
 		}
-		elapsed := time.Since(start)
-		times = append(times, stop)
-		overt.WriteRune(r) //writes the message to the overt variable
+
+		if !prevTime.IsZero(){
+			times = append(times, start.Sub(prevTime))
+		}
+		prevTime = start 
+
+		overtMessage.WriteRune(r) //adds to the overt message 
 		fmt.Printf("%c", r)
 
 		//stop once the end of the file has been reached 
-		if strings.HasSuffix(overt.String(), "EOF"){//added
+		if strings.HasSuffix(overtMessage.String(), "EOF"){//added
 			break
 		}
 
 	}
-	//printing out the final slice allows you to observe the durations
+
+	//prints out the final slice of time 
 	fmt.Println("\nTiming data:")
-	fmt.Println(times)
+	for _, t := range times {
+		fmt.Printf("%d ", t.Milliseconds())
+	}
 
 
 	//decode the bits that were retrieved 
-	var bits strings.Builder 
+	var bits strings.Builder
 	for _, t := range times{
-		if t > threshold { //defind the threshold later
+		if t.Milliseconds() >= cutoff{
 			bits.WriteByte('1')
 		} else {
 			bits.WriteByte('0')
@@ -85,6 +100,20 @@ func main(){
 	}
 	
 	//convert the bits to ascii 
+	covertMessage := bitsToString(bits.String())
+	if strings.Contains(covertMessage, "EOF"){
+		covertMessage = strings.Split(covertMessage, "EOF") [0]
+	}
 
-
+	fmt.Println("\nCovert message is:", covertMessage)
 }
+
+	func bitsToString(bits string) string {
+		var results strings.Builder
+		for i := 0; i+8 <= len(bits); i += 8{ 
+			bytes := bits[i : i + 8]
+			val, _ := strconv.ParseInt(bytes, 2, 8) 
+			results.WriteByte(byte(val))
+		} 
+		return results.String()
+	}
