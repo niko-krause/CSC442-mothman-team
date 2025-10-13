@@ -21,13 +21,17 @@ const cutoff = 60 // milliseconds
 
 func main() {
 	// connect to the TCP server
-	conn, err := net.Dial("tcp", "192.168.56.1:2025")
+	conn, err := net.Dial("tcp", ":") // INSERT THE FOLLOWING: ipaddress:port
 	if err != nil {
 		fmt.Println("Error connecting:", err)
 		os.Exit(1)
 	}
 
 	defer conn.Close()
+	
+	// opening message 
+	fmt.Println("[connect to the chat server]")
+	fmt.Println()
 
 	reader := bufio.NewReader(conn)
 
@@ -47,7 +51,7 @@ func main() {
 
 		if err != nil {
 			if err == io.EOF {
-				fmt.Println("\nServer closed Connection")
+				fmt.Println("\n[disconnect from the chat server]") // EDITED TO LINE UP WITH ASSIGNMENT OUTPUT 
 				break
 			}
 			fmt.Println("\nError reading from server:", err)
@@ -69,12 +73,16 @@ func main() {
 		}
 	}
 
+
+	// COMMENTING THIS OUT BECAUSE IT IS ABSENT FROM THE EXAMPLE OUTPUT ON THE ASSIGNMENT 
+	/*
 	// printing out the timing data
 	fmt.Println("\nTiming data:")
 	for _, t := range times {
 		fmt.Printf("%.3f ", float64(t.Microseconds())/1000.0)
 	}
 	fmt.Println("\n")
+	*/
 
 	// convert timings to bits
 	var bits strings.Builder
@@ -86,8 +94,9 @@ func main() {
 		}
 	}
 
+	// ALSO COMMENTING THIS LINE OUT TO MAKE OUTPUT CLOSER TO EXAMPLE OUTPUT ON ASSIGNMENT 
 	// printing bits for debugging
-	fmt.Println("Bits:", bits.String())
+	//fmt.Println("Bits:", bits.String())
 
 	// covert message is the ASCII rep of those bits
 	covertMessage := bitsToString(bits.String())
@@ -95,7 +104,7 @@ func main() {
 		covertMessage = strings.Split(covertMessage, "EOF")[0]
 	}
 
-	fmt.Println("\nCovert message is:", covertMessage)
+	fmt.Println("\nCovert message: ", covertMessage) // EDITED TO LINE UP WITH ASSIGNMENT OUTPUT 
 }
 
 // bitsToString tries all 8 bit alignments and returns the most readable one
