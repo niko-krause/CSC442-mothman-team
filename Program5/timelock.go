@@ -20,10 +20,22 @@ import (
 )
 
 const DEBUG = true // toggles print statements and ability to input sys time
-const layout = "2006 01 02 15 04 05" // arbitrary time to specify the format 
+const layout = "2006 01 02 15 04 05" // using DateTime layout from time package 
 
 
 func main() {
+	timeCalculations()
+}
+
+/*
+taking the users input through redirection and does the following:
+parses the provided enoch time as a time value rather than a string 
+takes the current system time 
+compares the two to get the seconds passed 
+returns second value? 
+*/
+
+func timeCalculations(){
 	// need to collect user input 
 	// takes this input from the cmd line at the same time as runtime 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -43,35 +55,34 @@ func main() {
 	
 	// parse the input enoch time as a time value 
 	
-	t, _ := time.Parse(layout, enoch)
+	parsedEnoch, _ := time.Parse(layout, enoch)
 	
 	if DEBUG {
-		fmt.Println("Parsed enoch time: ", t)
+		fmt.Println("Parsed enoch time: ", parsedEnoch)
 		fmt.Println()
 	}
 		
-	// manually input desired system time 
-	if DEBUG {
-		
-	}
+	
 	
 	// collect system time 
-	current := time.Now()
+	current := time.Now().UTC()
 	fmt.Println("Current time is", current)
+	
+	// manually input desired system time 
+	if DEBUG {
+		current := "2017 01 01 01 00 00" 
+		// need to parse this bad boy also 
+		current, _ := time.Parse(layout, current)
+	}
 	
 	// compare input with sys time to get ellapsed time
 	
-	elapsed := time.Since(t).Seconds()
+	//elapsed := time.Since(parsedEnoch).Seconds() 
+	
+	elapsed := current.Sub(parsedEnoch).Seconds()
 	
 	if DEBUG {
-		fmt.Printf("Elapsed time is: %f seconds ", elapsed)
+		fmt.Printf("Elapsed time is: %v seconds \n", elapsed)
 	}
-	
-	// do this with the comparisons built into the time package
-	
-	
-	
-	
-	
 	
 }
