@@ -32,7 +32,7 @@ taking the users input through redirection and does the following:
 parses the provided enoch time as a time value rather than a string 
 takes the current system time 
 compares the two to get the seconds passed 
-returns second value? 
+returns second value
 */
 
 func timeCalculations(){
@@ -42,6 +42,7 @@ func timeCalculations(){
 	
 	var enoch string
 	
+	// getting stdin 
 	for scanner.Scan() {
 		
 		line := scanner.Text()	
@@ -53,9 +54,14 @@ func timeCalculations(){
 		}
 	}
 	
+	// location information 
+	
+	location, _ := time.LoadLocation("America/Chicago")
+	
 	// parse the input enoch time as a time value 
 	
-	parsedEnoch, _ := time.Parse(layout, enoch)
+	parsedEnoch, _ := time.ParseInLocation(layout, enoch, location) // removed .UTC
+	//parsedEnoch = parsedEnoch.UTC()
 	
 	if DEBUG {
 		fmt.Println("Parsed enoch time: ", parsedEnoch)
@@ -65,15 +71,18 @@ func timeCalculations(){
 	
 	
 	// collect system time 
-	current := time.Now().UTC()
-	fmt.Println("Current time is", current)
+	current := time.Now() // removed .UTC()
 	
+	/*
 	// manually input desired system time 
 	if DEBUG {
-		current := "2017 01 01 01 00 00" 
+		currentStr := "2017 10 01 00 00 00" 
 		// need to parse this bad boy also 
-		current, _ := time.Parse(layout, current)
-	}
+		current, _ = time.Parse(layout, currentStr)
+	} 
+	*/
+	
+	fmt.Println("Current time is", current)
 	
 	// compare input with sys time to get ellapsed time
 	
