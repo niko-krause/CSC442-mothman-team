@@ -21,7 +21,7 @@ const cutoff = 60 // milliseconds
 
 func main() {
 	// connect to the TCP server
-	conn, err := net.Dial("tcp", ":") // INSERT THE FOLLOWING: ipaddress:port
+	conn, err := net.Dial("tcp", "10.7.7.67:33333") // INSERT THE FOLLOWING: ipaddress:port
 	if err != nil {
 		fmt.Println("Error connecting:", err)
 		os.Exit(1)
