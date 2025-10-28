@@ -7,16 +7,13 @@ Description: Go program which implements the timelock algorithm
 
 package main 
 
-// standard imports (stolen from my program 4)
 import (
 	"bufio"
 	"fmt"
-	//"io"
-	//"net"
 	"os"
-	//"strconv"
-	//"strings"
 	"time"
+	"crypto/md5"
+	"io"
 )
 
 const DEBUG = true // toggles print statements and ability to input sys time
@@ -24,8 +21,11 @@ const layout = "2006 01 02 15 04 05" // using DateTime layout from time package
 
 
 func main() {
-	timeCalculations()
+	finalElapsed := timeCalculations()
+	doubleHash(finalElapsed)
+	
 }
+
 
 /*
 taking the users input through redirection and does the following:
@@ -35,7 +35,8 @@ compares the two to get the seconds passed
 returns second value
 */
 
-func timeCalculations(){
+
+func timeCalculations() float64{ // removed time.Time
 	// need to collect user input 
 	// takes this input from the cmd line at the same time as runtime 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -54,7 +55,7 @@ func timeCalculations(){
 		}
 	}
 	
-	// location information 
+	// location information (needed to fix daylight savings issues)
 	
 	location, _ := time.LoadLocation("America/Chicago")
 	
@@ -68,30 +69,59 @@ func timeCalculations(){
 		fmt.Println()
 	}
 		
-	
-	
+
 	// collect system time 
 	current := time.Now() // removed .UTC()
 	
-	/*
+
 	// manually input desired system time 
 	if DEBUG {
 		currentStr := "2017 10 01 00 00 00" 
 		// need to parse this bad boy also 
 		current, _ = time.Parse(layout, currentStr)
 	} 
-	*/
+
 	
 	fmt.Println("Current time is", current)
 	
 	// compare input with sys time to get ellapsed time
-	
-	//elapsed := time.Since(parsedEnoch).Seconds() 
 	
 	elapsed := current.Sub(parsedEnoch).Seconds()
 	
 	if DEBUG {
 		fmt.Printf("Elapsed time is: %v seconds \n", elapsed)
 	}
+	
+	return elapsed
+	
+}
+
+/*
+function that takes in the elapsed time from epoch and then 
+computes the md5 hash twice, extracts the first two chars 
+and backwards first two ints, concatenates, and returns 
+
+*/
+
+func doubleHash (elapsed float64){
+	
+	// need to convert the ellapsed seconds into string
+	elapsedString := fmt.Sprintf("%f", elapsed)
+	
+	// first hash
+	hash := md5.New()
+	
+	io.WriteString(hash, elapsedString)
+	
+	firstHash := hash.Sum(nil)
+	
+	// second hash
+	hashTwo := md5.New() 
+	
+	io.WriteString(hashTwo, fmt.Sprintf("%x", firstHash))
+	
+	secondHash := hashTwo.Sum(nil)
+	
+	fmt.Printf("%x", secondHash)
 	
 }
