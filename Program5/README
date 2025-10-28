@@ -1,0 +1,31 @@
+
+INFORMATION FOR PROGRAM 5 - Chandler Dees 
+
+Based on the examples provided, this program takes in standard input via redirection meaning you must 
+have a text file containing your desired epoch date to run the program. 
+
+RUNNING PROGRAM:
+
+Command to run program5 in powershell: 
+
+Get-Content .\epoch2.txt | .\timelock.exe
+
+In linux it should be as simple as: 
+
+epoch.txt > ./timelock 
+
+This program could only be tested in powershell due to discrepancies between go versions causing 
+issues on my VM 
+
+DEBUG CONSTANT: 
+
+To see more information in the file there is a constant boolean at the top labeled as DEBUG. 
+Setting DEBUG to true will give you lots of information about every stage of the implemented 
+timelock algorithm. DEBUG was set to false when submitted so that outputs match the given 
+example output. 
+
+SUBMISSION CONTENTS:
+
+In the submitted zip there is the timelock.go file, a built executable which was built in 
+powershell, two epoch files with different values for testing, and the go mod file. 
+ 
