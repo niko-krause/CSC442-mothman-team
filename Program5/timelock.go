@@ -17,15 +17,14 @@ import (
 	"regexp"
 )
 
-const DEBUG = true // toggles print statements and ability to input sys time
+const DEBUG = false // toggles print statements and ability to input sys time
 const layout = "2006 01 02 15 04 05" // using DateTime layout from time package 
 
 
 func main() {
 	finalElapsed := timeCalculations()
 	resultHash := doubleHash(finalElapsed)
-	fmt.Print(extractChars(resultHash))
-	
+	fmt.Print(extractChars(resultHash)) // final result 
 }
 
 
@@ -39,7 +38,7 @@ returns second value of elapsed time
 */
 
 
-func timeCalculations() float64{ // removed time.Time
+func timeCalculations() int64{ // removed time.Time
 	// need to collect user input 
 	// takes this input from the cmd line at the same time as runtime 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -55,6 +54,7 @@ func timeCalculations() float64{ // removed time.Time
 		if DEBUG {
 			
 			fmt.Printf("Read: %s\n", enoch)
+			fmt.Println()
 		}
 	}
 	
@@ -69,23 +69,24 @@ func timeCalculations() float64{ // removed time.Time
 	
 	if DEBUG {
 		fmt.Println("Parsed enoch time: ", parsedEnoch)
-		fmt.Println()
 	}
 		
 
 	// collect system time 
 	current := time.Now() // removed .UTC()
 	
-
+/*
 	// manually input desired system time 
 	if DEBUG {
 		currentStr := "2017 10 01 00 00 00" 
 		// need to parse this bad boy also 
 		current, _ = time.Parse(layout, currentStr)
 	} 
+*/
 
-	
-	fmt.Println("Current time is", current)
+	if DEBUG {
+		fmt.Println("Current time is", current)
+	}
 	
 	// compare input with sys time to get ellapsed time
 	
@@ -93,9 +94,18 @@ func timeCalculations() float64{ // removed time.Time
 	
 	if DEBUG {
 		fmt.Printf("Elapsed time is: %v seconds \n", elapsed)
+		fmt.Println()
 	}
 	
-	return elapsed
+	//return elapsed
+	
+	// codes are the same for 60 seconds so we tear this elapsed time into 
+	// 60 second chunks
+	
+	interval := int64(elapsed) / 60 * 60
+	
+	return interval
+	
 	
 }
 
@@ -106,10 +116,13 @@ computes the md5 hash twice
 returns the hash
 */
 
-func doubleHash (elapsed float64) string{
+func doubleHash (elapsed int64) string{
+	
+	// testing this 
+	elapsedInt := int64(elapsed)
 	
 	// need to convert the ellapsed seconds into string
-	elapsedString := fmt.Sprintf("%f", elapsed)
+	elapsedString := fmt.Sprintf("%f", elapsedInt)
 	
 	// first hash
 	hash := md5.New()
@@ -130,10 +143,10 @@ func doubleHash (elapsed float64) string{
 	
 	if DEBUG {
 		fmt.Printf(resultHash)
+		fmt.Println()
 	}
 	
 	return resultHash
-	
 }
 
 
@@ -189,7 +202,4 @@ func extractChars(hash string) string{
 	
 	// concatenate and return 
 	return firstLetters + swap 
-	
-	
-	
 }
