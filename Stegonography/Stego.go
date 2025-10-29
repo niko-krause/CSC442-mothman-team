@@ -89,24 +89,19 @@ func retrieve(bitFlag bool, byteFlag bool, offset int, interval int, wrapper str
 		for i := offset; i<len(wBytes); i+=interval { //while we're in the limits of the wrapper and hidden file, iterating by the interval
 	
 			hBytes = append(hBytes, wBytes[i]) //appends the suspected hidden byte to the proper array
-
-			if (slices.Contains(sentinel, wBytes[i])){ //
-				endcoming = append(endcoming, wBytes[i])
-			}
-
-			if (len(endcoming) == len(sentinel)){
-				if (slices.Equal(endcoming, sentinel)){ //if the sentinel is the same length as the sentinel checker, and they have the same values
+			
+			endcoming = append(endcoming, wBytes[i])
+			
+			if slices.Equal(endcoming, sentinel[0:len(endcoming)]) { //if endcoming and the sentinel are currently equal
+				if (len(endcoming) == 6){ //if the sentinel is the same length as the sentinel checker
 					hBytes = slices.Delete(hBytes, len(hBytes)-6, len(hBytes)) //removes the last 6 bytes, thus removing the sentinel
+					fmt.Print(string(hBytes))
 					break
-				} else {
-					endcoming = nil
-				}
-
+				} 
+			} else {
+				endcoming = nil
 			}
 		}
-
-		fmt.Print(string(hBytes))
-
 	} else if (bitFlag) {
 
 		newBytes := []byte {}
@@ -132,19 +127,20 @@ func retrieve(bitFlag bool, byteFlag bool, offset int, interval int, wrapper str
 
 			newBytes = append(newBytes, hByte)
 			
-			if (slices.Contains(sentinel, hByte)){ 
-				endcoming = append(endcoming, hByte)
-			}
-	
-			if (len(endcoming) == len(sentinel)){
-				if (slices.Equal(endcoming, sentinel)){ //if the sentinel is the same length as the sentinel checker, and they have the same values
+			
+			endcoming = append(endcoming, hByte)
+			
+			if (slices.Equal(endcoming, sentinel[0:len(endcoming)])){ 
+				if len(endcoming) == 6 {
 					newBytes = slices.Delete(newBytes, len(newBytes)-6, len(newBytes)) //removes the last 6 bytes, thus removing the sentinel
 					fmt.Print(string(newBytes))
 					break
-				} else {
-					endcoming = nil
 				}
+			} else {
+				endcoming = nil
 			}
+			
+		
 		}
 
 	}
