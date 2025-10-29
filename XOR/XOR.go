@@ -71,14 +71,6 @@ func getMessage() string { // returns two things
 
 }
 
-func getKey() {
-	// taking in key
-
-	// convert key to binary with sprintf
-
-	// return message and key
-}
-
 func toBinary(originalMessage string) string {
 	binaryRep := ""
 	// iterating through each character of message => binary
@@ -93,10 +85,10 @@ func toBinary(originalMessage string) string {
 	return binaryRep
 }
 
-func xor() { // assignment XOR: reads key from `key`, streams stdin, writes stdout
-	// Read key file (binary)
+func xor() {
+	// read key from file
 	key, err := os.ReadFile(keyPath)
-	if err != nil {
+	if err != nil { //print the error if key file not found and exit
 		fmt.Fprintf(os.Stderr, "Error: failed to read key file %q: %v\n", keyPath, err)
 		os.Exit(1)
 	}
@@ -109,6 +101,7 @@ func xor() { // assignment XOR: reads key from `key`, streams stdin, writes stdo
 	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
 
+	// buffer for reading input
 	buf := make([]byte, bufSize)
 	keyLen := len(key)
 	keyIndex := 0
@@ -136,3 +129,5 @@ func xor() { // assignment XOR: reads key from `key`, streams stdin, writes stdo
 		}
 	}
 }
+
+//references -- chat.openai.com/
